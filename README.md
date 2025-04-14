@@ -1,6 +1,6 @@
 # BugSplat MCP Server Prototype
 
-This is a prototype implementation of a Model Context Protocol (MCP) server for BugSplat integration.
+This is a prototype implementation of a Model Context Protocol (MCP) server for BugSplat integration. test test test
 
 ## Getting Started 👨‍🏫
 
