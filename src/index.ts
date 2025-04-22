@@ -1,25 +1,24 @@
 #!/usr/bin/env node
 
-import {
-  McpServer,
-  ResourceTemplate,
-} from "@modelcontextprotocol/sdk/server/mcp.js";
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import { existsSync } from "fs";
 import { readFile } from "fs/promises";
+import mime from "mime";
 import { join } from "path";
 import { z } from "zod";
 import {
   formatAttachmentsListOutput,
   getAttachmentDirPath,
   getAttachmentsList,
-  listDownloadedAttachmentDirectories,
 } from "./attachment.js";
 import { checkCredentials } from "./bugsplat.js";
+import { resizeImageData } from "./image.js";
 import { formatIssueOutput, getIssue } from "./issue.js";
 import { formatIssuesOutput, getIssues } from "./issues.js";
 import { formatSummaryOutput, getSummary } from "./summary.js";
-import mime from "mime";
+import { truncateTextData } from "./text.js";
+
+const claudeDesktopMaxAttachmentSize = 1048576 * 0.8; // Max response size minus some buffer
 
 const server = new McpServer({
   name: "bugsplat-mcp",
@@ -31,8 +30,8 @@ const server = new McpServer({
 });
 
 server.tool(
-  "get-issues",
-  "Get BugSplat issues with optional filtering. The issues tool lists the all crashes in the BugSplat database and is useful for determining the most recent crashes.",
+  "list-issues",
+  "List BugSplat issues with optional filtering. The issues tool lists the all crashes in the BugSplat database and is useful for determining the most recent crashes.",
   {
     application: z
       .string()
@@ -146,7 +145,7 @@ server.tool(
 );
 
 server.tool(
-  "get-attachments-list",
+  "list-attachments",
   "Get list of attachments for a specific BugSplat issue. The attachments tool lists the attachments (log files, screenshots, etc.) for a specific crash and is useful for determining the cause of and fixing a specific crash.",
   {
     id: z.number().describe("Issue ID to retrieve"),
@@ -167,74 +166,53 @@ server.tool(
   }
 );
 
-// TODO BG I originally made this a resource, but I couldn't get Claude Desktop to do anything with it.
-server.resource(
+server.tool(
   "get-attachment",
-  new ResourceTemplate(
-    `file://bugsplat-mcp/${process.env.BUGSPLAT_DATABASE!}/{crashId}/{file}`,
-    {
-      list: async () => {
-        const resources = [];
-
-        const crashIds = await listDownloadedAttachmentDirectories();
-        for (const crashId of crashIds) {
-          const files = await getAttachmentsList(Number(crashId));
-          resources.push(
-            ...files.map((file) => ({
-              name: `${crashId}/${file}`,
-              uri: `file://bugsplat-mcp/${process.env
-                .BUGSPLAT_DATABASE!}/${crashId}/${file}`,
-            }))
-          );
-        }
-
-        return {
-          resources,
-          nextCursor: undefined,
-        };
-      },
-    }
-  ),
-  async (uri, { crashId, file }) => {
+  "Get a specific attachment for a BugSplat issue. Returns the file content as a base64 blob.",
+  {
+    crashId: z.number().describe("The ID of the crash report"),
+    file: z.string().describe("The name of the attachment file to retrieve"),
+  },
+  async ({ crashId, file }) => {
     try {
+      checkCredentials();
+
       const id = Number(crashId);
 
       if (isNaN(id)) {
         throw new Error("Invalid crash ID " + crashId);
       }
 
-      if (typeof file !== "string") {
+      if (typeof file !== "string" || !file) {
         throw new Error("Invalid file name " + file);
       }
 
-      const attachmentDir = getAttachmentDirPath(id);
-      const fileExists = existsSync(join(attachmentDir, file));
+      const files = await getAttachmentsList(id);
 
-      if (!fileExists) {
-        throw new Error("File not found");
+      if (!files.includes(file)) {
+        throw new Error(
+          `Attachment file not found: ${file} for crash ID ${id}.`
+        );
       }
 
-      const filePath = join(attachmentDir, file);
-      const contents = await readFile(filePath);
+      const contents = await readFile(join(getAttachmentDirPath(id), file));
       const blob = contents.toString("base64");
       const mimeType = mime.getType(file) || "application/octet-stream";
-      return {
-        contents: [{ blob, mimeType, uri: uri.href }],
-      };
-    } catch (error: any) {
-      return {
-        contents: [{ text: "Error: " + error.message, uri: uri.href }],
-      };
+
+      return await createAttachmentResponse(blob, mimeType, file);
+    } catch (error) {
+      return createErrorResponse(error);
     }
   }
 );
 
+type McpContent =
+  | { type: "text"; text: string }
+  | { type: "image"; data: string; mimeType: string; fileName: string };
+
 interface McpResponse {
   [key: string]: unknown;
-  content: {
-    type: "text";
-    text: string;
-  }[];
+  content: McpContent[];
   isError?: boolean;
 }
 
@@ -247,6 +225,61 @@ function createSuccessResponse(text: string): McpResponse {
       },
     ],
   };
+}
+
+async function createAttachmentResponse(
+  blob: string,
+  mimeType: string,
+  fileName: string
+): Promise<McpResponse> {
+  if (mimeType.startsWith("image/")) {
+    let imageBuffer = Buffer.from(blob, "base64");
+    let resizedBlob = blob;
+
+    try {
+      const processedBuffer = await resizeImageData(
+        imageBuffer,
+        fileName,
+        claudeDesktopMaxAttachmentSize
+      );
+      resizedBlob = processedBuffer.toString("base64");
+    } catch (resizeError) {
+      return createErrorResponse(
+        resizeError instanceof Error
+          ? resizeError
+          : new Error("Failed to process image")
+      );
+    }
+
+    return {
+      content: [
+        {
+          type: "image" as const,
+          data: resizedBlob,
+          mimeType,
+          fileName,
+        },
+      ],
+    };
+  } else if (mimeType.startsWith("text/")) {
+    const buffer = Buffer.from(blob, "base64");
+
+    const textContent = truncateTextData(
+      buffer,
+      claudeDesktopMaxAttachmentSize
+    );
+
+    return {
+      content: [
+        {
+          type: "text" as const,
+          text: textContent,
+        },
+      ],
+    };
+  } else {
+    throw new Error(`Unsupported attachment type: ${mimeType}`);
+  }
 }
 
 function createErrorResponse(error: unknown): McpResponse {

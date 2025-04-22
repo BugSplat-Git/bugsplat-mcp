@@ -44,22 +44,7 @@ export async function getAttachmentsList(id: number) {
   const attachmentDir = getAttachmentDirPath(id);
 
   if (!existsSync(attachmentDir)) {
-    const crash = await getIssue(process.env.BUGSPLAT_DATABASE!, id);
-
-    if (crash.dumpfileSize > 1024 * 1024 * 50) {
-      throw new Error("Attachments zip file is too large to download");
-    }
-
-    await mkdir(attachmentDir, { recursive: true });
-
-    const response = await fetch(crash.dumpfile);
-    const buffer = await response.arrayBuffer();
-    const zipFileName = `${id}-${Date.now()}.zip`;
-    const zipFilePath = join(attachmentDir, zipFileName);
-    await writeFile(zipFilePath, Buffer.from(buffer));
-
-    new AdmZip(zipFilePath).extractAllTo(attachmentDir, true);
-    await rm(zipFilePath);
+    await downloadAttachments(id, attachmentDir);
   }
 
   return readdir(attachmentDir);
@@ -80,6 +65,25 @@ export async function listDownloadedAttachmentDirectories() {
   if (!existsSync(attachmentBaseDir)) {
     return [];
   }
-  
+
   return readdir(attachmentBaseDir);
+}
+
+async function downloadAttachments(id: number, attachmentDir: string) {
+  const crash = await getIssue(process.env.BUGSPLAT_DATABASE!, id);
+
+  if (crash.dumpfileSize > 1024 * 1024 * 50) {
+    throw new Error("Attachments zip file is too large to download");
+  }
+
+  await mkdir(attachmentDir, { recursive: true });
+
+  const response = await fetch(crash.dumpfile);
+  const buffer = await response.arrayBuffer();
+  const zipFileName = `${id}-${Date.now()}.zip`;
+  const zipFilePath = join(attachmentDir, zipFileName);
+  await writeFile(zipFilePath, Buffer.from(buffer));
+
+  new AdmZip(zipFilePath).extractAllTo(attachmentDir, true);
+  await rm(zipFilePath);
 }
