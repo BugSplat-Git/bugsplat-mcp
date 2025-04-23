@@ -174,20 +174,15 @@ server.tool(
     try {
       checkCredentials();
 
-      const id = crashId;
-      if (typeof file !== "string" || !file) {
-        throw new Error("Invalid file name " + file);
-      }
-
-      const files = await listAttachments(id);
+      const files = await listAttachments(crashId);
 
       if (!files.includes(file)) {
         throw new Error(
-          `Attachment file not found: ${file} for crash ID ${id}.`
+          `Attachment file not found: ${file} for crash ID ${crashId}.`
         );
       }
 
-      const contents = await readFile(join(getAttachmentDirPath(id), file));
+      const contents = await readFile(join(getAttachmentDirPath(crashId), file));
       const blob = contents.toString("base64");
       const mimeType = mime.getType(file) || "application/octet-stream";
 
