@@ -28,7 +28,7 @@ const server = new McpServer({
 
 server.tool(
   "list-issues",
-  "List BugSplat issues with optional filtering. The issues tool lists the all crashes in the BugSplat database and is useful for determining the most recent crashes.",
+  "List BugSplat issues with optional filtering. The issues tool lists all crashes in the BugSplat database and is useful for determining the most recent crashes.",
   {
     application: z
       .string()
@@ -174,12 +174,7 @@ server.tool(
     try {
       checkCredentials();
 
-      const id = Number(crashId);
-
-      if (isNaN(id)) {
-        throw new Error("Invalid crash ID " + crashId);
-      }
-
+      const id = crashId;
       if (typeof file !== "string" || !file) {
         throw new Error("Invalid file name " + file);
       }
