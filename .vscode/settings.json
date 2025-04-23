@@ -1,5 +1,7 @@
 {
   "jasmineExplorer.nodeArgv": [
+    "-r",
+    "dotenv/config",
     "--enable-source-maps",
     "--experimental-vm-modules"
   ],

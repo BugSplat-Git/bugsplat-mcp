@@ -5,7 +5,7 @@ import {
 } from "@bugsplat/js-api-client";
 import { createBugSplatClient } from "./bugsplat.js";
 
-export async function getIssues(
+export async function listIssues(
   database: string,
   options: {
     application?: string;

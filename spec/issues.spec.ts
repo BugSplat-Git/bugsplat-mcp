@@ -1,5 +1,5 @@
 import { config } from "dotenv";
-import { getIssues, formatIssuesOutput } from "../src/issues.js";
+import { listIssues, formatIssuesOutput } from "../src/issues.js";
 import { postAndWaitForCrashToProcess } from "./crash.js";
 
 // Load environment variables from .env file
@@ -26,9 +26,9 @@ describe("issues integration", () => {
     });
   });
 
-  describe("getIssues", () => {
+  describe("listIssues", () => {
     it("should fetch issues from BugSplat", async () => {
-      const result = await getIssues(database, {
+      const result = await listIssues(database, {
         pageSize: 5,
         application,
         version,
@@ -45,7 +45,7 @@ describe("issues integration", () => {
     });
 
     it("should apply filters correctly", async () => {
-      const result = await getIssues(database, {
+      const result = await listIssues(database, {
         application,
         version,
         pageSize: 5,
@@ -61,7 +61,7 @@ describe("issues integration", () => {
     });
 
     it("should get issues with filters", async () => {
-      const result = await getIssues(database, {
+      const result = await listIssues(database, {
         pageSize: 5,
         application,
         version,
@@ -70,7 +70,7 @@ describe("issues integration", () => {
     });
 
     it("should get issues with stackGroup filter", async () => {
-      const result = await getIssues(database, {
+      const result = await listIssues(database, {
         pageSize: 5,
         stackGroup: "test-stack-group",
       });
@@ -78,7 +78,7 @@ describe("issues integration", () => {
     });
 
     it("should get issues with date filters", async () => {
-      const result = await getIssues(database, {
+      const result = await listIssues(database, {
         pageSize: 5,
         startDate: "2024-01-01",
         endDate: "2024-12-31",
@@ -89,7 +89,7 @@ describe("issues integration", () => {
 
   describe("formatIssuesOutput", () => {
     it("should format multiple issues from BugSplat", async () => {
-      const crashes = await getIssues(database, {
+      const crashes = await listIssues(database, {
         application,
         version,
         pageSize: 2,

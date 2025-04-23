@@ -42,7 +42,7 @@ export async function postAndWaitForCrashToProcess(
   return crashId;
 }
 
-async function postCrash(
+export async function postCrash(
   database: string,
   application: string,
   version: string,

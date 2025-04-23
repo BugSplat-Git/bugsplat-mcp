@@ -6,15 +6,12 @@ import { readFile } from "fs/promises";
 import mime from "mime";
 import { join } from "path";
 import { z } from "zod";
-import {
-  formatAttachmentsListOutput,
-  getAttachmentDirPath,
-  getAttachmentsList,
-} from "./attachment.js";
+import { getAttachmentDirPath } from "./attachment.js";
+import { formatListAttachmentsOutput, listAttachments } from "./attachments.js";
 import { checkCredentials } from "./bugsplat.js";
 import { resizeImageData } from "./image.js";
 import { formatIssueOutput, getIssue } from "./issue.js";
-import { formatIssuesOutput, getIssues } from "./issues.js";
+import { formatIssuesOutput, listIssues } from "./issues.js";
 import { formatSummaryOutput, getSummary } from "./summary.js";
 import { truncateTextData } from "./text.js";
 
@@ -65,7 +62,7 @@ server.tool(
   }) => {
     try {
       checkCredentials();
-      const rows = await getIssues(process.env.BUGSPLAT_DATABASE!, {
+      const rows = await listIssues(process.env.BUGSPLAT_DATABASE!, {
         application,
         version,
         stackGroup,
@@ -153,8 +150,8 @@ server.tool(
   async ({ id }) => {
     try {
       checkCredentials();
-      const files = await getAttachmentsList(id);
-      const output = formatAttachmentsListOutput(
+      const files = await listAttachments(id);
+      const output = formatListAttachmentsOutput(
         process.env.BUGSPLAT_DATABASE!,
         id,
         files
@@ -187,7 +184,7 @@ server.tool(
         throw new Error("Invalid file name " + file);
       }
 
-      const files = await getAttachmentsList(id);
+      const files = await listAttachments(id);
 
       if (!files.includes(file)) {
         throw new Error(
