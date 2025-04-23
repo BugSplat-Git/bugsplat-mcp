@@ -30,3 +30,6 @@ jobs:
       run: npm test
       env:
         CI: true 
+        BUGSPLAT_DATABASE: ${{ secrets.BUGSPLATDATABASE }}
+        BUGSPLAT_CLIENT_ID: ${{ secrets.BUGSPLATCLIENTID }}
+        BUGSPLAT_CLIENT_SECRET: ${{ secrets.BUGSPLATCLIENTSECRET }} 
