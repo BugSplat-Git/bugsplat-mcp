@@ -58,6 +58,21 @@ Get a specific attachment for a BugSplat issue. Returns the file content as a ba
 - `crashId`: The ID of the crash report
 - `file`: The name of the attachment file to retrieve
 
+### create-defect
+Create a new defect in a connected defect tracking system.
+- `stackKeyId`: The Stack Key ID you'd like to log as a defect
+- `notes`: Notes about the defect you'd like to log
+
+### add-defect-link
+Add a link between a BugSplat issue and an existing defect in a connected defect tracking system.
+- `stackKeyId`: The Stack Key ID you'd like to log as a defect
+- `notes`: Notes about the defect you'd like to log
+- `linkDefectId`: The ID of the defect you'd like to link to
+
+### remove-defect-link
+Remove the link between a BugSplat issue and a connected defect tracking system. The defect in the defect tracking system will not be deleted, but the link will be removed.
+- `stackKeyId`: The Stack Key ID you'd like to remove the defect from
+
 Each tool will automatically use the credentials provided in your `.env` file or the environment variables configured for the MCP server. 
 
 ## Developing 👨‍💻
