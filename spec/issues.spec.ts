@@ -13,14 +13,14 @@ const description = "Test crash";
 describe("issues integration", () => {
   let crashId: number;
   beforeAll(async () => {
-    crashId = await postAndWaitForCrashToProcess(
+    ({ crashId } = await postAndWaitForCrashToProcess(
       database,
       application,
       version,
       {
         description,
       }
-    );
+    ));
     await postAndWaitForCrashToProcess(database, application, version, {
       description,
     });

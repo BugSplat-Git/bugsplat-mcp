@@ -9,6 +9,7 @@ import { z } from "zod";
 import { getAttachmentDirPath } from "./attachment.js";
 import { formatListAttachmentsOutput, listAttachments } from "./attachments.js";
 import { checkCredentials } from "./bugsplat.js";
+import { addDefectLink, createDefect, removeDefectLink } from "./defect.js";
 import { resizeImageData } from "./image.js";
 import { formatIssueOutput, getIssue } from "./issue.js";
 import { formatIssuesOutput, listIssues } from "./issues.js";
@@ -182,11 +183,96 @@ server.tool(
         );
       }
 
-      const contents = await readFile(join(getAttachmentDirPath(crashId), file));
+      const contents = await readFile(
+        join(getAttachmentDirPath(crashId), file)
+      );
       const blob = contents.toString("base64");
       const mimeType = mime.getType(file) || "application/octet-stream";
 
       return await createAttachmentResponse(blob, mimeType, file);
+    } catch (error) {
+      return createErrorResponse(error);
+    }
+  }
+);
+
+server.tool(
+  "create-defect",
+  "Create a new defect in a connected defect tracking system.",
+  {
+    stackKeyId: z
+      .number()
+      .describe("The Stack Key ID you'd like to log as a defect"),
+    notes: z.string().describe("Notes about the defect you'd like to log"),
+  },
+  async ({ stackKeyId, notes }) => {
+    try {
+      checkCredentials();
+
+      const result = await createDefect(
+        process.env.BUGSPLAT_DATABASE!,
+        stackKeyId,
+        notes
+      );
+
+      const { defectId } = await result.json();
+
+      return await createSuccessResponse(`Defect created with ID ${defectId}.`);
+    } catch (error) {
+      return createErrorResponse(error);
+    }
+  }
+);
+
+server.tool(
+  "add-defect-link",
+  "Add a link between a BugSplat issue and an existing defect in a connected defect tracking system.",
+  {
+    stackKeyId: z
+      .number()
+      .describe("The Stack Key ID you'd like to log as a defect"),
+    notes: z.string().describe("Notes about the defect you'd like to log"),
+    linkDefectId: z
+      .string()
+      .describe("The ID of the defect you'd like to link to"),
+  },
+  async ({ stackKeyId, notes, linkDefectId }) => {
+    try {
+      checkCredentials();
+
+      await addDefectLink(
+        process.env.BUGSPLAT_DATABASE!,
+        stackKeyId,
+        notes,
+        linkDefectId
+      );
+
+      return await createSuccessResponse(
+        `Defect ${linkDefectId} linked to issue ${stackKeyId}.`
+      );
+    } catch (error) {
+      return createErrorResponse(error);
+    }
+  }
+);
+
+server.tool(
+  "remove-defect-link",
+  "Remove the link between a BugSplat issue and a connected defect tracking system. The defect in the defect tracking system will not be deleted, but the link will be removed.",
+  {
+    stackKeyId: z
+      .number()
+      .describe("The Stack Key ID you'd like to remove the defect from"),
+  },
+  async ({ stackKeyId }) => {
+    try {
+      checkCredentials();
+
+      await removeDefectLink(process.env.BUGSPLAT_DATABASE!, stackKeyId);
+
+      return await createSuccessResponse(
+        `Defect link removed from issue ${stackKeyId}.`
+      );
     } catch (error) {
       return createErrorResponse(error);
     }

@@ -12,9 +12,14 @@ const description = "Test crash";
 describe("issue integration", () => {
   let crashId: number;
   beforeAll(async () => {
-    crashId = await postAndWaitForCrashToProcess(database, application, version, {
-      description,
-    });
+    ({ crashId } = await postAndWaitForCrashToProcess(
+      database,
+      application,
+      version,
+      {
+        description,
+      }
+    ));
   });
 
   describe("getIssue", () => {
@@ -34,9 +39,7 @@ describe("issue integration", () => {
       const nonExistentId = 999999999;
       await expectAsync(
         getIssue(database, nonExistentId)
-      ).toBeRejectedWithError(
-        `Invalid Crash Id`
-      );
+      ).toBeRejectedWithError(`Invalid Crash Id`);
     });
   });
 

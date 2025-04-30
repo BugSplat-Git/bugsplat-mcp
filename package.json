@@ -34,7 +34,7 @@
   "author": "Bobby Galli <bobby@bugsplat.com>",
   "license": "MIT",
   "dependencies": {
-    "@bugsplat/js-api-client": "^11.0.0",
+    "@bugsplat/js-api-client": "^11.1.0",
     "@modelcontextprotocol/sdk": "^1.9.0",
     "@types/adm-zip": "^0.5.7",
     "@types/jasmine": "^5.1.7",

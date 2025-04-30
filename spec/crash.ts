@@ -27,7 +27,7 @@ export async function postAndWaitForCrashToProcess(
   let stackKeyId = crash.stackKeyId;
 
   if (stackKeyId > 0) {
-    return crashId;
+    return { crashId, stackKeyId };
   }
 
   for (let i = 0; i < 60; i++) {
@@ -39,7 +39,7 @@ export async function postAndWaitForCrashToProcess(
     await delay(3000);
   }
 
-  return crashId;
+  return { crashId, stackKeyId };
 }
 
 export async function postCrash(
