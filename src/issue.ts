@@ -51,6 +51,9 @@ export function formatIssueOutput(
   if (crash.stackKeyId) {
     text += `Stack Key ID: ${crash.stackKeyId}\n`;
   }
+
+  text += `Linked Defects: ${crash.stackKeyDefectLabel || "None"}\n`;
+
   if (
     crash.thread &&
     crash.thread.stackFrames &&

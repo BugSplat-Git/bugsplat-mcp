@@ -84,6 +84,9 @@ export function formatIssuesOutput(
       if (row.stackKey) {
         text += `\n${row.stackKey}`;
       }
+
+      text += `Linked Defects: ${row.skDefectLabel || "None"}\n`;
+
       if (i < rows.length - 1) {
         text += "\n\n--------------------------------\n\n";
       }
