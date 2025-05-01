@@ -13,11 +13,16 @@ const database = process.env.BUGSPLAT_DATABASE!;
 const application = "test";
 const version = "1.0.0";
 const description = "Test crash";
+const existingDefectId = process.env.BUGSPLAT_EXISTING_DEFECT_ID!;
 
 describe("defect integration", () => {
   let stackKeyId: number;
 
   beforeAll(async () => {
+    if (!existingDefectId) {
+      throw new Error("BUGSPLAT_EXISTING_DEFECT_ID is not set");
+    }
+
     ({ stackKeyId } = await postAndWaitForCrashToProcess(
       database,
       application,
@@ -38,13 +43,12 @@ describe("defect integration", () => {
   });
 
   describe("addDefectLink", () => {
-    // https://github.com/BugSplat-Git/Test/issues/8958
     it("should add a defect link to a real defect in BugSplat", async () => {
       const result = await addDefectLink(
         database,
         stackKeyId,
         "Test defect",
-        "8958"
+        existingDefectId
       );
       const { defectId } = await result.json();
 
