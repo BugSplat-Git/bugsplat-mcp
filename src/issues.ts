@@ -81,8 +81,11 @@ export function formatIssuesOutput(
       if (row.email) {
         text += `Email: ${row.email}\n`;
       }
+      if (row.stackKeyId) {
+        text += `Stack Key ID: ${row.stackKeyId}\n`;
+      }
       if (row.stackKey) {
-        text += `\n${row.stackKey}`;
+        text += `Stack Key: ${row.stackKey}\n`;
       }
 
       text += `Linked Defects: ${row.skDefectLabel || "None"}\n`;

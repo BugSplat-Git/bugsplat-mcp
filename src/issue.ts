@@ -45,11 +45,11 @@ export function formatIssueOutput(
   if (crash.ipAddress) {
     text += `IP Address: ${crash.ipAddress}\n`;
   }
-  if (crash.stackKey) {
-    text += `Stack Key: ${crash.stackKey}\n`;
-  }
   if (crash.stackKeyId) {
     text += `Stack Key ID: ${crash.stackKeyId}\n`;
+  }
+  if (crash.stackKey) {
+    text += `Stack Key: ${crash.stackKey}\n`;
   }
 
   text += `Linked Defects: ${crash.stackKeyDefectLabel || "None"}\n`;
