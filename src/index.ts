@@ -13,6 +13,7 @@ import { addDefectLink, createDefect, removeDefectLink } from "./defect.js";
 import { resizeImageData } from "./image.js";
 import { formatIssueOutput, getIssue } from "./issue.js";
 import { formatIssuesOutput, listIssues } from "./issues.js";
+import { formatKeyCrashesOutput, getKeyCrashes } from "./key-crash.js";
 import { formatSummaryOutput, getSummary } from "./summary.js";
 import { truncateTextData } from "./text.js";
 
@@ -91,6 +92,34 @@ server.tool(
       checkCredentials();
       const crash = await getIssue(process.env.BUGSPLAT_DATABASE!, id);
       const output = formatIssueOutput(crash, process.env.BUGSPLAT_DATABASE!);
+      return createSuccessResponse(output);
+    } catch (error) {
+      return createErrorResponse(error);
+    }
+  }
+);
+
+server.tool(
+  "get-key-crashes",
+  "Get all crashes for a specific Stack Key ID (crash group). This tool lists all individual crashes that belong to the same crash group, which is useful for analyzing patterns within a specific type of crash.",
+  {
+    stackKeyId: z.number().describe("The Stack Key ID to get crashes for"),
+    pageSize: z
+      .number()
+      .min(1)
+      .max(100)
+      .optional()
+      .default(10)
+      .describe("Number of results per page (1-100, defaults to 10)"),
+  },
+  async ({ stackKeyId, pageSize }) => {
+    try {
+      checkCredentials();
+      const rows = await getKeyCrashes(process.env.BUGSPLAT_DATABASE!, stackKeyId, {
+        pageSize,
+      });
+
+      const output = formatKeyCrashesOutput(rows, process.env.BUGSPLAT_DATABASE!, stackKeyId);
       return createSuccessResponse(output);
     } catch (error) {
       return createErrorResponse(error);

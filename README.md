@@ -41,6 +41,11 @@ List BugSplat issues with optional filtering. The issues tool lists all crashes 
 Get details of a specific BugSplat issue. The issue tool lists the details of a specific crash and is useful for determining the cause of and fixing a specific crash.
 - `id`: Issue ID to retrieve
 
+### get-key-crashes
+Get all crashes for a specific Stack Key ID (crash group). This tool lists all individual crashes that belong to the same crash group, which is useful for analyzing patterns within a specific type of crash.
+- `stackKeyId`: The Stack Key ID to get crashes for
+- `pageSize`: Number of results per page (1-100, defaults to 10)
+
 ### get-summary
 Get summary of BugSplat issues with optional filtering. The summary tool lists information about groups of crashes and is useful for determining what issues are most prevalent.
 - `applications`: Array of application names to filter by
