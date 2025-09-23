@@ -51,7 +51,7 @@ export async function getSummary(
 export function formatSummaryOutput(rows: SummaryApiRow[]): string {
   return rows
     .map((row) => {
-      return `Summary for ${row.stackKey} from ${row.firstReport} to ${row.lastReport} ${row.crashSum} crashes`;
+      return `Summary for ${row.stackKey} (Group ID:${row.stackKeyId}) from ${row.firstReport} to ${row.lastReport} ${row.crashSum} crashes`;
     })
     .join("\n");
 }

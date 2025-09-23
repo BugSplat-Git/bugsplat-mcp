@@ -41,9 +41,9 @@ List BugSplat issues with optional filtering. The issues tool lists all crashes 
 Get details of a specific BugSplat issue. The issue tool lists the details of a specific crash and is useful for determining the cause of and fixing a specific crash.
 - `id`: Issue ID to retrieve
 
-### get-key-crashes
-Get all crashes for a specific Stack Key ID (crash group). This tool lists all individual crashes that belong to the same crash group, which is useful for analyzing patterns within a specific type of crash.
-- `stackKeyId`: The Stack Key ID to get crashes for
+### list-issues-for-group
+Get all crashes for a specific Stack Key (Group) ID. This tool lists all individual crashes that belong to the same crash group, which is useful for analyzing patterns within a specific type of crash.
+- `stackKeyId`: The Stack Key (Group) ID to get crashes for
 - `pageSize`: Number of results per page (1-100, defaults to 10)
 
 ### get-summary
@@ -65,18 +65,18 @@ Get a specific attachment for a BugSplat issue. Returns the file content as a ba
 
 ### create-defect
 Create a new defect in a connected defect tracking system.
-- `stackKeyId`: The Stack Key ID you'd like to log as a defect
+- `stackKeyId`: The Stack Key (Group) ID you'd like to log as a defect
 - `notes`: Notes about the defect you'd like to log
 
 ### add-defect-link
 Add a link between a BugSplat issue and an existing defect in a connected defect tracking system.
-- `stackKeyId`: The Stack Key ID you'd like to log as a defect
+- `stackKeyId`: The Stack Key (Group) ID you'd like to log as a defect
 - `notes`: Notes about the defect you'd like to log
 - `linkDefectId`: The ID of the defect you'd like to link to
 
 ### remove-defect-link
 Remove the link between a BugSplat issue and a connected defect tracking system. The defect in the defect tracking system will not be deleted, but the link will be removed.
-- `stackKeyId`: The Stack Key ID you'd like to remove the defect from
+- `stackKeyId`: The Stack Key (Group) ID you'd like to remove the defect from
 
 Each tool will automatically use the credentials provided in your `.env` file or the environment variables configured for the MCP server. 
 
