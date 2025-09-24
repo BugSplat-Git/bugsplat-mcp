@@ -78,6 +78,9 @@ Add a link between a BugSplat issue and an existing defect in a connected defect
 Remove the link between a BugSplat issue and a connected defect tracking system. The defect in the defect tracking system will not be deleted, but the link will be removed.
 - `stackKeyId`: The Stack Key ID you'd like to remove the defect from
 
+### get-docs-urls
+Get all documentation URLs from BugSplat docs sitemap with .md extensions. Returns an array of URLs that can be used to fetch documentation content.
+
 Each tool will automatically use the credentials provided in your `.env` file or the environment variables configured for the MCP server. 
 
 ## Developing 👨‍💻

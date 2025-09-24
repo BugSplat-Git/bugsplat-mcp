@@ -16,6 +16,7 @@ import { formatIssuesOutput, listIssues } from "./issues.js";
 import { formatKeyCrashesOutput, getKeyCrashes } from "./key-crash.js";
 import { formatSummaryOutput, getSummary } from "./summary.js";
 import { truncateTextData } from "./text.js";
+import { getDocsUrls } from "./docs.js";
 
 const claudeDesktopMaxAttachmentSize = 1048576 * 0.8; // Max response size minus some buffer
 
@@ -302,6 +303,20 @@ server.tool(
       return await createSuccessResponse(
         `Defect link removed from issue ${stackKeyId}.`
       );
+    } catch (error) {
+      return createErrorResponse(error);
+    }
+  }
+);
+
+server.tool(
+  "get-docs-urls",
+  "Get all documentation URLs from BugSplat docs sitemap with .md extensions. Returns an array of URLs that can be used to fetch documentation content.",
+  {},
+  async () => {
+    try {
+      const urls = await getDocsUrls();
+      return createSuccessResponse(`Found ${urls.length} documentation URLs:\n${urls.join('\n')}`);
     } catch (error) {
       return createErrorResponse(error);
     }
