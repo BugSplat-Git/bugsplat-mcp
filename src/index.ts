@@ -101,10 +101,10 @@ server.tool(
 );
 
 server.tool(
-  "get-key-crashes",
-  "Get all crashes for a specific Stack Key ID (crash group). This tool lists all individual crashes that belong to the same crash group, which is useful for analyzing patterns within a specific type of crash.",
+  "list-issues-for-group",
+  "List BugSplat issues for a specific Stack Key (Group) ID with optional filtering. This tool lists all individual crashes that belong to the same crash group, which is useful for analyzing patterns within a specific type of crash.",
   {
-    stackKeyId: z.number().describe("The Stack Key ID to get crashes for"),
+    stackKeyId: z.number().describe("The Stack Key (Group) ID to get crashes for"),
     pageSize: z
       .number()
       .min(1)

@@ -29,10 +29,10 @@ export function formatKeyCrashesOutput(
   stackKeyId: number
 ): string {
   if (rows.length === 0) {
-    return `No crashes found for Stack Key ID ${stackKeyId} in database ${database}`;
+    return `No crashes found for Stack Key (Group) ID ${stackKeyId} in database ${database}`;
   }
 
-  let text = `Found ${rows.length} crashes for Stack Key ID ${stackKeyId} in database ${database}:\n\n`;
+  let text = `Found ${rows.length} crashes for Stack Key (Group) ID ${stackKeyId} in database ${database}:\n\n`;
 
   return text + rows
     .map((row, i) => {
