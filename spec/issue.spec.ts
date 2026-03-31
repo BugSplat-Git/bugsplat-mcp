@@ -1,11 +1,12 @@
+import { describe, it, expect, beforeAll } from "vitest";
 import { config } from "dotenv";
-import { getIssue, formatIssueOutput } from "../src/issue.js";
-import { postAndWaitForCrashToProcess } from "./crash.js";
+import { getIssue, formatIssueOutput } from "../src/issue";
+import { postAndWaitForCrashToProcess } from "./crash";
 
 config();
 
 const database = process.env.BUGSPLAT_DATABASE!;
-const application = "test";
+const application = "test-issue";
 const version = "1.0.0";
 const description = "Test crash";
 
@@ -37,9 +38,9 @@ describe("issue integration", () => {
 
     it("should throw an error for non-existent issue", async () => {
       const nonExistentId = 999999999;
-      await expectAsync(
+      await expect(
         getIssue(database, nonExistentId)
-      ).toBeRejectedWithError(`Invalid Crash Id`);
+      ).rejects.toThrow(`Invalid Crash Id`);
     });
   });
 

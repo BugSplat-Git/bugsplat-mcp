@@ -1,16 +1,16 @@
+import { describe, it, expect, beforeAll } from "vitest";
 import { config } from "dotenv";
-import { getIssue, formatIssueOutput } from "../src/issue.js";
-import { postAndWaitForCrashToProcess } from "./crash.js";
+import { postAndWaitForCrashToProcess } from "./crash";
 import {
   addDefectLink,
   createDefect,
   removeDefectLink,
-} from "../src/defect.js";
+} from "../src/defect";
 
 config();
 
 const database = process.env.BUGSPLAT_DATABASE!;
-const application = "test";
+const application = "test-defect";
 const version = "1.0.0";
 const description = "Test crash";
 const existingDefectId = process.env.BUGSPLAT_EXISTING_DEFECT_ID!;
@@ -58,7 +58,7 @@ describe("defect integration", () => {
 
   describe("removeDefectLink", () => {
     it("should remove a defect link from a real defect in BugSplat", async () => {
-      await expectAsync(removeDefectLink(database, stackKeyId)).toBeResolved();
+      await removeDefectLink(database, stackKeyId);
     });
   });
 });

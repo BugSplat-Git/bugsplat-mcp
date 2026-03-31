@@ -1,4 +1,5 @@
-import { getDocsUrls } from "../src/docs.js";
+import { describe, it, expect, vi } from "vitest";
+import { getDocsUrls } from "../src/docs";
 
 describe("docs integration", () => {
   describe("getDocsUrls", () => {
@@ -34,10 +35,10 @@ describe("docs integration", () => {
 
     it("should handle network errors gracefully", async () => {
       const originalFetch = global.fetch;
-      global.fetch = jasmine.createSpy('fetch').and.rejectWith(new Error('Network error'));
+      global.fetch = vi.fn().mockRejectedValue(new Error('Network error'));
 
       try {
-        await expectAsync(getDocsUrls()).toBeRejectedWithError('Network error');
+        await expect(getDocsUrls()).rejects.toThrow('Network error');
       } finally {
         global.fetch = originalFetch;
       }
@@ -50,10 +51,10 @@ describe("docs integration", () => {
         status: 404,
         statusText: 'Not Found'
       };
-      global.fetch = jasmine.createSpy('fetch').and.resolveTo(mockResponse);
+      global.fetch = vi.fn().mockResolvedValue(mockResponse);
 
       try {
-        await expectAsync(getDocsUrls()).toBeRejectedWithError('Failed to fetch sitemap: 404 Not Found');
+        await expect(getDocsUrls()).rejects.toThrow('Failed to fetch sitemap: 404 Not Found');
       } finally {
         global.fetch = originalFetch;
       }

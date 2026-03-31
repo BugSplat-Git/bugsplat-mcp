@@ -1,5 +1,4 @@
 import {
-  QueryFilter,
   QueryFilterGroup,
   SummaryApiClient,
   SummaryApiRow,
@@ -20,19 +19,12 @@ export async function getSummary(
   const summaryClient = new SummaryApiClient(bugsplat);
   let filterGroups: QueryFilterGroup[] = [];
 
-  if (options.startDate) {
+  if (options.startDate || options.endDate) {
     filterGroups.push(
-      new QueryFilterGroup([
-        new QueryFilter(options.startDate, "GREATER_THAN", "firstReport"),
-      ])
-    );
-  }
-
-  if (options.endDate) {
-    filterGroups.push(
-      QueryFilterGroup.fromColumnValues(
-        [new Date(options.endDate).toISOString()],
-        "firstReport"
+      QueryFilterGroup.fromTimeFrame(
+        "firstReport",
+        options.startDate ? new Date(options.startDate) : undefined,
+        options.endDate ? new Date(options.endDate) : undefined
       )
     );
   }

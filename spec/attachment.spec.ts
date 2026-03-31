@@ -1,7 +1,8 @@
+import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { config } from "dotenv";
 import { mkdir, rm, writeFile } from "fs/promises";
 import { join } from "path";
-import { getAttachment, getAttachmentDirPath } from "../src/attachment.js";
+import { getAttachment, getAttachmentDirPath } from "../src/attachment";
 
 config();
 

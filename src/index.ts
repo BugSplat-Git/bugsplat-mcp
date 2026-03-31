@@ -20,40 +20,47 @@ import { getDocsUrls } from "./docs.js";
 
 const claudeDesktopMaxAttachmentSize = 1048576 * 0.8; // Max response size minus some buffer
 
-const server = new McpServer({
-  name: "bugsplat-mcp",
-  version: "1.0.0",
-  capabilities: {
-    resources: {},
-    tools: {},
-  },
-});
-
-server.tool(
-  "list-issues",
-  "List BugSplat issues with optional filtering. The issues tool lists all crashes in the BugSplat database and is useful for determining the most recent crashes.",
+const server = new McpServer(
   {
-    application: z
-      .string()
-      .optional()
-      .describe("Application name to filter by"),
-    version: z.string().optional().describe("Version to filter by"),
-    stackGroup: z.string().optional().describe("Stack group to filter by"),
-    startDate: z
-      .string()
-      .optional()
-      .describe("Start date for filtering (ISO format)"),
-    endDate: z
-      .string()
-      .optional()
-      .describe("End date for filtering (ISO format)"),
-    pageSize: z
-      .number()
-      .min(1)
-      .max(100)
-      .optional()
-      .default(10)
-      .describe("Number of results per page (1-100, defaults to 10)"),
+    name: "bugsplat-mcp",
+    version: "1.0.0",
+  },
+  {
+    capabilities: {
+      resources: {},
+      tools: {},
+    },
+  }
+);
+
+server.registerTool(
+  "list-issues",
+  {
+    description:
+      "List BugSplat issues with optional filtering. The issues tool lists all crashes in the BugSplat database and is useful for determining the most recent crashes.",
+    inputSchema: {
+      application: z
+        .string()
+        .optional()
+        .describe("Application name to filter by"),
+      version: z.string().optional().describe("Version to filter by"),
+      stackGroup: z.string().optional().describe("Stack group to filter by"),
+      startDate: z
+        .string()
+        .optional()
+        .describe("Start date for filtering (ISO format)"),
+      endDate: z
+        .string()
+        .optional()
+        .describe("End date for filtering (ISO format)"),
+      pageSize: z
+        .number()
+        .min(1)
+        .max(100)
+        .optional()
+        .default(10)
+        .describe("Number of results per page (1-100, defaults to 10)"),
+    },
   },
   async ({
     application,
@@ -82,11 +89,14 @@ server.tool(
   }
 );
 
-server.tool(
+server.registerTool(
   "get-issue",
-  "Get details of a specific BugSplat issue. The issue tool lists the details of a specific crash and is useful for determining the cause of and fixing a specific crash.",
   {
-    id: z.number().describe("Issue ID to retrieve"),
+    description:
+      "Get details of a specific BugSplat issue. The issue tool lists the details of a specific crash and is useful for determining the cause of and fixing a specific crash.",
+    inputSchema: {
+      id: z.number().describe("Issue ID to retrieve"),
+    },
   },
   async ({ id }) => {
     try {
@@ -100,27 +110,38 @@ server.tool(
   }
 );
 
-server.tool(
+server.registerTool(
   "get-key-crashes",
-  "Get all crashes for a specific Stack Key ID (crash group). This tool lists all individual crashes that belong to the same crash group, which is useful for analyzing patterns within a specific type of crash.",
   {
-    stackKeyId: z.number().describe("The Stack Key ID to get crashes for"),
-    pageSize: z
-      .number()
-      .min(1)
-      .max(100)
-      .optional()
-      .default(10)
-      .describe("Number of results per page (1-100, defaults to 10)"),
+    description:
+      "Get all crashes for a specific Stack Key ID (crash group). This tool lists all individual crashes that belong to the same crash group, which is useful for analyzing patterns within a specific type of crash.",
+    inputSchema: {
+      stackKeyId: z.number().describe("The Stack Key ID to get crashes for"),
+      pageSize: z
+        .number()
+        .min(1)
+        .max(100)
+        .optional()
+        .default(10)
+        .describe("Number of results per page (1-100, defaults to 10)"),
+    },
   },
   async ({ stackKeyId, pageSize }) => {
     try {
       checkCredentials();
-      const rows = await getKeyCrashes(process.env.BUGSPLAT_DATABASE!, stackKeyId, {
-        pageSize,
-      });
+      const rows = await getKeyCrashes(
+        process.env.BUGSPLAT_DATABASE!,
+        stackKeyId,
+        {
+          pageSize,
+        }
+      );
 
-      const output = formatKeyCrashesOutput(rows, process.env.BUGSPLAT_DATABASE!, stackKeyId);
+      const output = formatKeyCrashesOutput(
+        rows,
+        process.env.BUGSPLAT_DATABASE!,
+        stackKeyId
+      );
       return createSuccessResponse(output);
     } catch (error) {
       return createErrorResponse(error);
@@ -128,30 +149,36 @@ server.tool(
   }
 );
 
-server.tool(
+server.registerTool(
   "get-summary",
-  "Get summary of BugSplat issues with optional filtering. The summary tool lists information about groups of crashes and is useful for determining what issues are most prevalent.",
   {
-    applications: z
-      .array(z.string())
-      .optional()
-      .describe("Application names to filter by"),
-    versions: z.array(z.string()).optional().describe("Versions to filter by"),
-    startDate: z
-      .string()
-      .optional()
-      .describe("Start date for filtering (ISO format)"),
-    endDate: z
-      .string()
-      .optional()
-      .describe("End date for filtering (ISO format)"),
-    pageSize: z
-      .number()
-      .min(1)
-      .max(20)
-      .optional()
-      .default(10)
-      .describe("Number of results per page (1-20, defaults to 10)"),
+    description:
+      "Get summary of BugSplat issues with optional filtering. The summary tool lists information about groups of crashes and is useful for determining what issues are most prevalent.",
+    inputSchema: {
+      applications: z
+        .array(z.string())
+        .optional()
+        .describe("Application names to filter by"),
+      versions: z
+        .array(z.string())
+        .optional()
+        .describe("Versions to filter by"),
+      startDate: z
+        .string()
+        .optional()
+        .describe("Start date for filtering (ISO format)"),
+      endDate: z
+        .string()
+        .optional()
+        .describe("End date for filtering (ISO format)"),
+      pageSize: z
+        .number()
+        .min(1)
+        .max(20)
+        .optional()
+        .default(10)
+        .describe("Number of results per page (1-20, defaults to 10)"),
+    },
   },
   async ({ applications, versions, startDate, endDate, pageSize }) => {
     try {
@@ -172,11 +199,14 @@ server.tool(
   }
 );
 
-server.tool(
+server.registerTool(
   "list-attachments",
-  "Get list of attachments for a specific BugSplat issue. The attachments tool lists the attachments (log files, screenshots, etc.) for a specific crash and is useful for determining the cause of and fixing a specific crash.",
   {
-    id: z.number().describe("Issue ID to retrieve"),
+    description:
+      "Get list of attachments for a specific BugSplat issue. The attachments tool lists the attachments (log files, screenshots, etc.) for a specific crash and is useful for determining the cause of and fixing a specific crash.",
+    inputSchema: {
+      id: z.number().describe("Issue ID to retrieve"),
+    },
   },
   async ({ id }) => {
     try {
@@ -194,12 +224,17 @@ server.tool(
   }
 );
 
-server.tool(
+server.registerTool(
   "get-attachment",
-  "Get a specific attachment for a BugSplat issue. Returns the file content as a base64 blob.",
   {
-    crashId: z.number().describe("The ID of the crash report"),
-    file: z.string().describe("The name of the attachment file to retrieve"),
+    description:
+      "Get a specific attachment for a BugSplat issue. Returns the file content as a base64 blob.",
+    inputSchema: {
+      crashId: z.number().describe("The ID of the crash report"),
+      file: z
+        .string()
+        .describe("The name of the attachment file to retrieve"),
+    },
   },
   async ({ crashId, file }) => {
     try {
@@ -226,14 +261,17 @@ server.tool(
   }
 );
 
-server.tool(
+server.registerTool(
   "create-defect",
-  "Create a new defect in a connected defect tracking system.",
   {
-    stackKeyId: z
-      .number()
-      .describe("The Stack Key ID you'd like to log as a defect"),
-    notes: z.string().describe("Notes about the defect you'd like to log"),
+    description:
+      "Create a new defect in a connected defect tracking system.",
+    inputSchema: {
+      stackKeyId: z
+        .number()
+        .describe("The Stack Key ID you'd like to log as a defect"),
+      notes: z.string().describe("Notes about the defect you'd like to log"),
+    },
   },
   async ({ stackKeyId, notes }) => {
     try {
@@ -247,24 +285,29 @@ server.tool(
 
       const { defectId } = await result.json();
 
-      return await createSuccessResponse(`Defect created with ID ${defectId}.`);
+      return await createSuccessResponse(
+        `Defect created with ID ${defectId}.`
+      );
     } catch (error) {
       return createErrorResponse(error);
     }
   }
 );
 
-server.tool(
+server.registerTool(
   "add-defect-link",
-  "Add a link between a BugSplat issue and an existing defect in a connected defect tracking system.",
   {
-    stackKeyId: z
-      .number()
-      .describe("The Stack Key ID you'd like to log as a defect"),
-    notes: z.string().describe("Notes about the defect you'd like to log"),
-    linkDefectId: z
-      .string()
-      .describe("The ID of the defect you'd like to link to"),
+    description:
+      "Add a link between a BugSplat issue and an existing defect in a connected defect tracking system.",
+    inputSchema: {
+      stackKeyId: z
+        .number()
+        .describe("The Stack Key ID you'd like to log as a defect"),
+      notes: z.string().describe("Notes about the defect you'd like to log"),
+      linkDefectId: z
+        .string()
+        .describe("The ID of the defect you'd like to link to"),
+    },
   },
   async ({ stackKeyId, notes, linkDefectId }) => {
     try {
@@ -286,13 +329,18 @@ server.tool(
   }
 );
 
-server.tool(
+server.registerTool(
   "remove-defect-link",
-  "Remove the link between a BugSplat issue and a connected defect tracking system. The defect in the defect tracking system will not be deleted, but the link will be removed.",
   {
-    stackKeyId: z
-      .number()
-      .describe("The Stack Key ID you'd like to remove the defect from"),
+    description:
+      "Remove the link between a BugSplat issue and a connected defect tracking system. The defect in the defect tracking system will not be deleted, but the link will be removed.",
+    inputSchema: {
+      stackKeyId: z
+        .number()
+        .describe(
+          "The Stack Key ID you'd like to remove the defect from"
+        ),
+    },
   },
   async ({ stackKeyId }) => {
     try {
@@ -309,14 +357,18 @@ server.tool(
   }
 );
 
-server.tool(
+server.registerTool(
   "get-docs-urls",
-  "Get all documentation URLs from BugSplat docs sitemap with .md extensions. Returns an array of URLs that can be used to fetch documentation content.",
-  {},
+  {
+    description:
+      "Get all documentation URLs from BugSplat docs sitemap with .md extensions. Returns an array of URLs that can be used to fetch documentation content.",
+  },
   async () => {
     try {
       const urls = await getDocsUrls();
-      return createSuccessResponse(`Found ${urls.length} documentation URLs:\n${urls.join('\n')}`);
+      return createSuccessResponse(
+        `Found ${urls.length} documentation URLs:\n${urls.join("\n")}`
+      );
     } catch (error) {
       return createErrorResponse(error);
     }

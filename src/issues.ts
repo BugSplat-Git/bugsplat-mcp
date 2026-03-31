@@ -41,7 +41,7 @@ export async function listIssues(
   if (options.startDate || options.endDate) {
     filterGroups.push(
       QueryFilterGroup.fromTimeFrame(
-        "date",
+        "crashTime",
         options.startDate ? new Date(options.startDate) : undefined,
         options.endDate ? new Date(options.endDate) : undefined
       )
