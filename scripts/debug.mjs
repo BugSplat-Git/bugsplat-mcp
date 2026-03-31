@@ -22,6 +22,7 @@ const args = [
   "@modelcontextprotocol/inspector",
   ...envVars.reduce((acc, env) => [...acc, "-e", env], []),
   "node",
+  "--inspect-brk",
   "build/index.js",
 ];
 
