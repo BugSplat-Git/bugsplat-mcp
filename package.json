@@ -14,9 +14,7 @@
     "debug": "node scripts/debug.mjs",
     "prestart": "npm run build",
     "start": "node build/index.mjs",
-    "build:test": "tsc -p tsconfig.spec.json && mkdir -p build/spec/support && cp spec/support/jasmine.json build/spec/support/",
-    "pretest": "npm run build:test",
-    "test": "node -r dotenv/config --experimental-vm-modules node_modules/jasmine/bin/jasmine.js --config=build/spec/support/jasmine.json",
+    "test": "vitest run",
     "prerelease": "npm run build",
     "release": "npm publish --access public"
   },
@@ -34,25 +32,23 @@
   "author": "Bobby Galli <bobby@bugsplat.com>",
   "license": "MIT",
   "dependencies": {
-    "@bugsplat/js-api-client": "^11.1.0",
+    "@bugsplat/js-api-client": "^14.5.0",
     "@modelcontextprotocol/sdk": "^1.9.0",
     "@types/adm-zip": "^0.5.7",
-    "@types/jasmine": "^5.1.7",
     "@types/sharp": "^0.31.1",
     "adm-zip": "^0.5.16",
     "fast-xml-parser": "^5.2.5",
-    "jasmine": "^5.6.0",
     "mime": "^4.0.7",
     "sharp": "^0.34.1",
-    "ts-node": "^10.9.2",
     "zod": "^3.24.2"
   },
   "devDependencies": {
-    "@modelcontextprotocol/inspector": "^0.10.2",
-    "@types/node": "^22.14.0",
-    "bugsplat": "^8.0.1",
-    "dotenv": "^16.5.0",
-    "typescript": "^5.8.3"
+    "@modelcontextprotocol/inspector": "^0.21.1",
+    "@types/node": "^25.5.0",
+    "bugsplat": "^9.0.1",
+    "dotenv": "^17.3.1",
+    "typescript": "^6.0.2",
+    "vitest": "^4.1.2"
   },
   "files": [
     "build"

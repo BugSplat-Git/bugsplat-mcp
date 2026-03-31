@@ -3,18 +3,17 @@ import { lstat, readdir, readFile, rm } from "fs/promises";
 import { tmpdir } from "os";
 import { join } from "path";
 
-if (!process.env.BUGSPLAT_DATABASE) {
-  throw new Error("BUGSPLAT_DATABASE environment variable is not defined");
-}
-
 export const bugsplatMcpTempDir = join(tmpdir(), "bugsplat-mcp");
 
-const attachmentBaseDir = join(
-  bugsplatMcpTempDir,
-  process.env.BUGSPLAT_DATABASE!
-);
+function getAttachmentBaseDir() {
+  if (!process.env.BUGSPLAT_DATABASE) {
+    throw new Error("BUGSPLAT_DATABASE environment variable is not defined");
+  }
+  return join(bugsplatMcpTempDir, process.env.BUGSPLAT_DATABASE);
+}
 
 export async function deleteOldAttachments() {
+  const attachmentBaseDir = getAttachmentBaseDir();
   const folders = await listDownloadedAttachmentDirectories();
   const fourteenDaysAgo = Date.now() - 14 * 24 * 60 * 60 * 1000;
 
@@ -43,6 +42,7 @@ export function getAttachmentDirPath(id: number) {
 }
 
 export async function listDownloadedAttachmentDirectories() {
+  const attachmentBaseDir = getAttachmentBaseDir();
   if (!existsSync(attachmentBaseDir)) {
     return [];
   }

@@ -1,12 +1,13 @@
+import { describe, it, expect, beforeAll } from "vitest";
 import { config } from "dotenv";
-import { getKeyCrashes, formatKeyCrashesOutput } from "../src/key-crash.js";
-import { postAndWaitForCrashToProcess } from "./crash.js";
+import { getKeyCrashes, formatKeyCrashesOutput } from "../src/key-crash";
+import { postAndWaitForCrashToProcess } from "./crash";
 
 // Load environment variables from .env file
 config();
 
 const database = process.env.BUGSPLAT_DATABASE!;
-const application = "test";
+const application = "test-key-crash";
 const version = "1.0.0";
 const description = "Test crash for key crash functionality";
 

@@ -1,13 +1,13 @@
+import { describe, it, expect, beforeAll } from "vitest";
 import { config } from "dotenv";
-import { formatSummaryOutput, getSummary } from "../src/summary.js";
-import { postAndWaitForCrashToProcess } from "./crash.js";
-import { SummaryApiRow } from "@bugsplat/js-api-client";
+import { formatSummaryOutput, getSummary } from "../src/summary";
+import { postAndWaitForCrashToProcess } from "./crash";
 
 // Load environment variables from .env file
 config();
 
 const database = process.env.BUGSPLAT_DATABASE!;
-const application = "test";
+const application = "test-summary";
 const version = "1.0.0";
 const description = "Test crash";
 
