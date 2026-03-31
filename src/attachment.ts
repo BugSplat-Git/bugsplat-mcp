@@ -14,7 +14,7 @@ function getAttachmentBaseDir() {
 
 export async function deleteOldAttachments() {
   const attachmentBaseDir = getAttachmentBaseDir();
-  const folders = await listDownloadedAttachmentDirectories();
+  const folders = await listDownloadedAttachmentDirectories(attachmentBaseDir);
   const fourteenDaysAgo = Date.now() - 14 * 24 * 60 * 60 * 1000;
 
   for (const folder of folders) {
@@ -38,11 +38,11 @@ export async function getAttachment(id: number, file: string) {
 }
 
 export function getAttachmentDirPath(id: number) {
-  return join(bugsplatMcpTempDir, process.env.BUGSPLAT_DATABASE!, `${id}`);
+  return join(getAttachmentBaseDir(), `${id}`);
 }
 
-export async function listDownloadedAttachmentDirectories() {
-  const attachmentBaseDir = getAttachmentBaseDir();
+export async function listDownloadedAttachmentDirectories(attachmentBaseDir?: string) {
+  attachmentBaseDir = attachmentBaseDir ?? getAttachmentBaseDir();
   if (!existsSync(attachmentBaseDir)) {
     return [];
   }

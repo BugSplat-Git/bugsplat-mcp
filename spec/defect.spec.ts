@@ -58,7 +58,7 @@ describe("defect integration", () => {
 
   describe("removeDefectLink", () => {
     it("should remove a defect link from a real defect in BugSplat", async () => {
-      await expect(removeDefectLink(database, stackKeyId)).resolves.not.toThrow();
+      await removeDefectLink(database, stackKeyId);
     });
   });
 });
